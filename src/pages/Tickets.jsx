@@ -43,7 +43,7 @@ const Tickets = () => {
 
     try {
       // Make an API request to the backend
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/stkpush`, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/stkpush`, {
         phone: formattedPhoneNumber, // Pass the formatted phone number
         amount: selectedTicket.price, // Pass the selected ticket price
       });
