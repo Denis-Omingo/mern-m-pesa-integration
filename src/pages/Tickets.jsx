@@ -4,6 +4,7 @@ import axios from 'axios';
 const Tickets = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false); // New state to track form submission
 
   const tickets = [
     { id: 1, name: 'Basic', price: 2000, color: 'black' },
@@ -13,6 +14,7 @@ const Tickets = () => {
 
   const handleSelectTicket = (ticket) => {
     setSelectedTicket(ticket);
+    setIsSubmitting(false); // Reset the submitting state on ticket selection
   };
 
   const handlePhoneSubmit = async (e) => {
@@ -41,18 +43,29 @@ const Tickets = () => {
       return;
     }
 
+    // Disable the button to prevent multiple submissions
+    setIsSubmitting(true);
+
     try {
       // Make an API request to the backend
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_BASE_URL}/api/stkpush`, {
         phone: formattedPhoneNumber, // Pass the formatted phone number
+        accountNumber: formattedPhoneNumber,
         amount: selectedTicket.price, // Pass the selected ticket price
       });
+
       console.log(response.data);
-      alert("Request sent successfully! Please check your phone for the STK push.");
+      alert("Payment has been made successfully!");
+
+      // Reset the state after successful payment
+      setSelectedTicket(null);
+      setPhoneNumber('');
+
     } catch (error) {
       console.error("Payment failed:", error);
-      console.log("Backend Base URL:", import.meta.env.VITE_BACKEND_BASE_URL)
+      console.log("Backend Base URL:", import.meta.env.VITE_BACKEND_BASE_URL);
       alert("Payment request failed.");
+      setIsSubmitting(false); // Re-enable button on failure
     }
   };
 
@@ -94,13 +107,15 @@ const Tickets = () => {
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="Phone number"
               className="border border-gray-300 rounded py-2 px-4 w-64 mb-4"
+              disabled={isSubmitting} // Disable the input if submitting
             />
             <br />
             <button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded"
+              className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={isSubmitting} // Disable the button if submitting
             >
-              Proceed to Payment
+              {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
             </button>
           </form>
 
